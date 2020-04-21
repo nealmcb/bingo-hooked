@@ -1,3 +1,11 @@
+"""Simulate Bingo, tracking number of numbers until a win.
+Draw a plot of the denisty function.
+
+With default of 10**2 repeates, 10**3 trials, takes about 100 seconds.
+
+Based on @Hooked answer at https://math.stackexchange.com/a/281661/5307
+"""
+
 from numpy import *
 from collections import Counter
 
@@ -52,4 +60,7 @@ plt.plot([EX.mean(),EX.mean()], [0,1.2*max(Y)], 'r--',lw=2)
 plt.ylim(ymax = 1.2*max(Y))
 plt.xlabel("Expected game length")
 
-plt.show()
+# For interactive use
+# plt.show()
+
+plt.savefig('bingo-pdf.png')
