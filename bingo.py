@@ -5,6 +5,9 @@ With default of 10**2 repeates, 10**3 trials, takes about 100 seconds.
 
 Based on @Hooked answer at https://math.stackexchange.com/a/281661/5307
 """
+from __future__ import print_function
+
+from builtins import range
 
 from numpy import *
 from collections import Counter
@@ -33,7 +36,7 @@ def game_length(board, game):
 def simulation(trials):
     C = Counter()
     b = new_board()
-    for _ in xrange(trials):
+    for _ in range(trials):
         C[game_length(b, new_game())] += 1
     return C
 
@@ -51,7 +54,7 @@ Y = array([float(sol[x]) for x in X])
 Y/= repeats*trials
 
 EX = array(list(sol.elements()))
-print "Mean and stddev", EX.mean(), EX.std()
+print("Mean and stddev", EX.mean(), EX.std())
 
 import pylab as plt
 plt.fill_between(X, Y, lw=2, alpha=.8)
