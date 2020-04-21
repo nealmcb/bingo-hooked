@@ -5,12 +5,11 @@ With default of 10**2 repeates, 10**3 trials, takes about 100 seconds.
 
 Based on @Hooked answer at https://math.stackexchange.com/a/281661/5307
 """
-from __future__ import print_function
-
-from builtins import range
 
 from numpy import *
 from collections import Counter
+from multiprocessing import *
+import pylab as plt
 
 def new_board():
     cols = arange(1,76).reshape(5,15)
@@ -40,30 +39,27 @@ def simulation(trials):
         C[game_length(b, new_game())] += 1
     return C
 
-repeats = 10**2
-trials  = 10**3
 
-from multiprocessing import *
-P = Pool()
-sol = sum(P.map(simulation,[trials,]*repeats))
-P.close()
-P.join()
+def main():
+    repeats = 10 ** 2
+    trials = 10 ** 3
+    P = Pool()
+    sol = sum(P.map(simulation, [trials, ] * repeats))
+    P.close()
+    P.join()
+    X = array(sorted(sol.keys()))
+    Y = array([float(sol[x]) for x in X])
+    Y /= repeats * trials
+    EX = array(list(sol.elements()))
+    print("Mean and stddev", EX.mean(), EX.std())
+    plt.fill_between(X, Y, lw=2, alpha=.8)
+    plt.plot([EX.mean(), EX.mean()], [0, 1.2 * max(Y)], 'r--', lw=2)
+    plt.ylim(ymax=1.2 * max(Y))
+    plt.xlabel("Expected game length")
+    # For interactive use
+    # plt.show()
+    plt.savefig('bingo-pdf.png')
 
-X = array(sorted(sol.keys()))
-Y = array([float(sol[x]) for x in X])
-Y/= repeats*trials
 
-EX = array(list(sol.elements()))
-print("Mean and stddev", EX.mean(), EX.std())
-
-import pylab as plt
-plt.fill_between(X, Y, lw=2, alpha=.8)
-
-plt.plot([EX.mean(),EX.mean()], [0,1.2*max(Y)], 'r--',lw=2)
-plt.ylim(ymax = 1.2*max(Y))
-plt.xlabel("Expected game length")
-
-# For interactive use
-# plt.show()
-
-plt.savefig('bingo-pdf.png')
+if __name__ == "__main__":
+    main()
