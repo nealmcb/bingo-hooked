@@ -41,21 +41,34 @@ def simulation(trials):
 
 
 def main():
+    # Distribute computation via Python multiprocessing package.
+    # "repeats" specifies the number of tasks to be farmed out via the Pool
+    # "trials" specifies the number of simulations to run per task
+    # The Counters returned by each task are summed together at the end.
     repeats = 10 ** 2
     trials = 10 ** 3
     P = Pool()
     sol = sum(P.map(simulation, [trials, ] * repeats))
     P.close()
     P.join()
+
     X = array(sorted(sol.keys()))
     Y = array([float(sol[x]) for x in X])
     Y /= repeats * trials
     EX = array(list(sol.elements()))
     print("Mean and stddev", EX.mean(), EX.std())
+
+    cdfdata = list(zip(X, cumsum(Y)))
+
+    print("\nObserved cumulative probability distribution\n")
+    print("calls,cumprobability")
+    [print(f'{x:d}, {cum:0.4f}') for x, cum in cdfdata]
+
     plt.fill_between(X, Y, lw=2, alpha=.8)
     plt.plot([EX.mean(), EX.mean()], [0, 1.2 * max(Y)], 'r--', lw=2)
     plt.ylim(ymax=1.2 * max(Y))
     plt.xlabel("Expected game length")
+    plt.ylabel("Probability")
     # For interactive use
     # plt.show()
     plt.savefig('bingo-pdf.png')
