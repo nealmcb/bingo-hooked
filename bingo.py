@@ -1,7 +1,7 @@
 """Simulate Bingo, tracking number of numbers until a win.
 Draw a plot of the denisty function.
 
-With default of 10**2 repeates, 10**3 trials, takes about 100 seconds.
+With default of 10**2 repeats, 10**3 trials, takes about 100 seconds.
 
 Based on @Hooked answer at https://math.stackexchange.com/a/281661/5307
 """
@@ -9,7 +9,22 @@ Based on @Hooked answer at https://math.stackexchange.com/a/281661/5307
 from numpy import *
 from collections import Counter
 from multiprocessing import *
-import pylab as plt
+import matplotlib.pyplot as plt
+import argparse
+import logging
+
+parser = argparse.ArgumentParser(description='Template file python best practices.')
+
+parser.add_argument("--test",  action="store_true", default=False,
+  help="Run tests")
+
+parser.add_argument("-d", "--debuglevel", type=int, default=logging.WARNING,
+  help="Set logging level to debuglevel, expressed as an integer: "
+  "DEBUG=10, INFO=20, WARNING=30, ERROR=40, CRITICAL=50. "
+  "The default is %(default)s" )
+
+parser.add_argument('-r', "--repeats", type=int, default=10**2,
+                    help='Number of trials of 1000 games to run')
 
 def new_board():
     cols = arange(1,76).reshape(5,15)
@@ -41,11 +56,13 @@ def simulation(trials):
 
 
 def main():
+    args = parser.parse_args()
+
     # Distribute computation via Python multiprocessing package.
     # "repeats" specifies the number of tasks to be farmed out via the Pool
     # "trials" specifies the number of simulations to run per task
     # The Counters returned by each task are summed together at the end.
-    repeats = 10 ** 2
+    repeats = args.repeats
     trials = 10 ** 3
     P = Pool()
     sol = sum(P.map(simulation, [trials, ] * repeats))
