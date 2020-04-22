@@ -1,9 +1,13 @@
 """Simulate Bingo, tracking number of numbers until a win.
 Draw a plot of the denisty function.
 
-With default of 10**2 repeats, 10**3 trials, takes about 100 seconds.
+With default of 100 repeats, 1000 trials, takes perhaps 100 seconds on a modern CPU.
 
 Based on @Hooked answer at https://math.stackexchange.com/a/281661/5307
+
+TODO:
+collect results incrementally with map_async, print out early if requested.
+ http://blog.shenwei.me/python-multiprocessing-pool-difference-between-map-apply-map_async-apply_async/
 """
 
 from numpy import *
@@ -23,8 +27,8 @@ parser.add_argument("-d", "--debuglevel", type=int, default=logging.WARNING,
   "DEBUG=10, INFO=20, WARNING=30, ERROR=40, CRITICAL=50. "
   "The default is %(default)s" )
 
-parser.add_argument('-r', "--repeats", type=int, default=10**2,
-                    help='Number of trials of 1000 games to run')
+parser.add_argument('-t', "--trials", type=int, default=1000,
+                    help='Number of games per trial')
 
 def new_board():
     cols = arange(1,76).reshape(5,15)
@@ -60,12 +64,12 @@ def main():
 
     # Distribute computation via Python multiprocessing package.
     # "repeats" specifies the number of tasks to be farmed out via the Pool
-    # "trials" specifies the number of simulations to run per task
+    # "trials" specifies the number of game simulations to run per task
     # The Counters returned by each task are summed together at the end.
-    repeats = args.repeats
-    trials = 10 ** 3
+    repeats = 100
+    trials = args.trials
     P = Pool()
-    sol = sum(P.map(simulation, [trials, ] * repeats))
+    sol = sum(P.map(simulation, [trials] * repeats))
     P.close()
     P.join()
 
@@ -79,7 +83,7 @@ def main():
 
     print("\nObserved cumulative probability distribution\n")
     print("calls,cumprobability")
-    [print(f'{x:d}, {cum:0.4f}') for x, cum in cdfdata]
+    [print(f'{x:d}, {cum:0.8f}') for x, cum in cdfdata]
 
     plt.fill_between(X, Y, lw=2, alpha=.8)
     plt.plot([EX.mean(), EX.mean()], [0, 1.2 * max(Y)], 'r--', lw=2)
